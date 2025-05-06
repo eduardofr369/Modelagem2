@@ -2,12 +2,17 @@
 
 #include <IOXhop_FirebaseESP32.h>
 #include <WiFiManager.h>
+#include <esp_sleep.h>
 
 
 //Variaveis do Firebase
 
 #define FIREBASE_HOST "testesdeimport-default-rtdb.firebaseio.com"
 #define FIREBASE_AUTH "vCXFLJtvRJ6NCF0cQC30qYppRBcU0cR17Cz3cetM"
+
+
+//variaveis do deep sleep
+int long tempo_wakeup = 60; // em segundos
 
 
 
@@ -20,14 +25,22 @@ float calcularCorrente();
 
 void setup() {
   Serial.begin(115200);
-
+ 
   conectarWifi();
-
+ 
   Firebase.begin(FIREBASE_HOST, FIREBASE_AUTH);
+ 
+  esp_sleep_enable_timer_wakeup(tempo_wakeup * 1000000);
+
+
 }
 
 void loop() {
   enviarDados();
+
+  delay(30000);
+
+  esp_deep_sleep_start();
 
 
 }
@@ -70,7 +83,7 @@ float calcularCorrente(){
 
 
 float resistencia = 20; 
-float tensao = 100;
+float tensao = 200;
 float corrente = tensao / resistencia; 
 
 
