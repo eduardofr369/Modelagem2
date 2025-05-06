@@ -15,8 +15,7 @@
 
 bool conectarWifi();
 void enviarDados();
-
-
+float calcularCorrente();
 
 
 void setup() {
@@ -53,13 +52,28 @@ bool conectarWifi(){
 
 void enviarDados(){
 
-  int dadosTensao = 1;
-  int dadosCorrente = 2;
-  int dadosUV = 3;
+  float dadosTensao = 1;
+  float dadosCorrente = calcularCorrente();
+  float dadosUV = 3;
 
   Firebase.setInt("Dados/Tensao", dadosTensao);
   Firebase.setInt("Dados/Corrente", dadosCorrente);
   Firebase.setInt("Dados/UV", dadosUV);
 
+
+}
+
+float calcularCorrente(){
+// vamos supor aqui que o algoritmo para calcular a corrente seja baseado na lei de ohm
+// essa função aqui é só para demonstrar como podemos guardar o valor de uma função dentro de uma variavel
+// a partir disso vamos enviar para o firebase
+
+
+float resistencia = 20; 
+float tensao = 100;
+float corrente = tensao / resistencia; 
+
+
+return corrente;
 
 }
