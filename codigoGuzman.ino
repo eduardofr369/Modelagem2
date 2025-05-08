@@ -3,6 +3,8 @@
 #include <IOXhop_FirebaseESP32.h>
 #include <WiFiManager.h>
 #include <esp_sleep.h>
+#include <Adafruit_ADS1X15.h>
+#include <Wire.h>
 
 
 //Variaveis do Firebase
@@ -15,12 +17,17 @@
 int long tempo_wakeup = 60; // em segundos
 
 
+// objeto ads
+Adafruit_ADS1115 ads;
+
 
 //funções auxiliares
 
 bool conectarWifi();
 void enviarDados();
 float calcularCorrente();
+float calcularTensao();
+float calcularUV();
 
 
 void setup() {
@@ -29,8 +36,14 @@ void setup() {
   conectarWifi();
  
   Firebase.begin(FIREBASE_HOST, FIREBASE_AUTH);
+
+  ads.begin();
+
+  Wire.begin();
  
   esp_sleep_enable_timer_wakeup(tempo_wakeup * 1000000);
+
+  ads.setGain(GAIN_TWOTHIRDS); // melhor resolução possivel para ler o vout
 
 
 }
@@ -38,7 +51,7 @@ void setup() {
 void loop() {
   enviarDados();
 
-  delay(30000);
+  //delay(30000);
 
   esp_deep_sleep_start();
 
@@ -70,23 +83,31 @@ void enviarDados(){
   float dadosUV = 3;
 
   Firebase.setInt("Dados/Tensao", dadosTensao);
-  Firebase.setInt("Dados/Corrente", dadosCorrente);
+  Firebase.setFloat("Dados/Corrente", dadosCorrente);
   Firebase.setInt("Dados/UV", dadosUV);
 
 
 }
 
 float calcularCorrente(){
-// vamos supor aqui que o algoritmo para calcular a corrente seja baseado na lei de ohm
-// essa função aqui é só para demonstrar como podemos guardar o valor de uma função dentro de uma variavel
-// a partir disso vamos enviar para o firebase
+  const float sensibilidade = 0.185;
+  float correnteAcumulada = 0;
+  int16_t adc0;
+  float out;
 
+  const int amostras = 10000;
 
-float resistencia = 20; 
-float tensao = 200;
-float corrente = tensao / resistencia; 
+  for (int i = 0; i < amostras; i++) {
+    adc0 = ads.readADC_SingleEnded(0);
 
+    out = ads.computeVolts(adc0);
 
-return corrente;
+    correnteAcumulada += (out - 2.5) / sensibilidade;
 
+    delay(1);
+  }
+
+  float corrente = correnteAcumulada / amostras;
+
+  return corrente;
 }
