@@ -95,7 +95,7 @@ float calcularCorrente(){
   int16_t adc0;
   float out;
 
-  const int amostras = 10000;
+  const int amostras = 10;
 
   for (int i = 0; i < amostras; i++) {
     adc0 = ads.readADC_SingleEnded(0);
