@@ -12,6 +12,13 @@
 #define FIREBASE_HOST "testesdeimport-default-rtdb.firebaseio.com"
 #define FIREBASE_AUTH "vCXFLJtvRJ6NCF0cQC30qYppRBcU0cR17Cz3cetM"
 
+// leds de verificação
+
+#define ledAmarelo 33
+#define ledVermelho 32
+#define ledVerde 25
+
+
 
 //variaveis do deep sleep
 int long tempo_wakeup = 60; // em segundos
@@ -24,7 +31,7 @@ Adafruit_ADS1115 ads;
 //funções auxiliares
 
 bool conectarWifi();
-void enviarDados();
+bool enviarDados();
 float calcularCorrente();
 float calcularTensao();
 float calcularUV();
@@ -45,13 +52,24 @@ void setup() {
 
   ads.setGain(GAIN_TWOTHIRDS); // melhor resolução possivel para ler o vout
 
+  pinMode(ledAmarelo, OUTPUT);
+  pinMode(ledVerde, OUTPUT);
+  pinMode(ledVermelho, OUTPUT);
+
 
 }
 
 void loop() {
   enviarDados();
 
-  //delay(30000);
+  if(enviarDados() == 1){
+    digitalWrite(ledAmarelo, HIGH);
+  }
+
+  delay(10000);
+
+  
+
 
   esp_deep_sleep_start();
 
@@ -66,26 +84,30 @@ bool conectarWifi(){
   response = wm.autoConnect("ESPGuzman");
 
   if(!response){
-    Serial.print("Wifi não funcionou seu lixo");
+    digitalWrite(ledVermelho, OUTPUT);
   }
   else{
-    Serial.print("Conectado!");
+    digitalWrite(ledVerde, OUTPUT);
   }
 
   return response;
 
 }
 
-void enviarDados(){
+bool enviarDados(){
 
   float dadosTensao = 1;
-  float dadosCorrente = calcularCorrente();
+  float dadosCorrente = 2;
   float dadosUV = 3;
+  bool verificar;
 
   Firebase.setInt("Dados/Tensao", dadosTensao);
   Firebase.setFloat("Dados/Corrente", dadosCorrente);
   Firebase.setInt("Dados/UV", dadosUV);
 
+  verificar = 1;
+
+  return verificar;
 
 }
 
