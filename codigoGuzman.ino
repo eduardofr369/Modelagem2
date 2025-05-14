@@ -84,10 +84,12 @@ bool conectarWifi(){
   response = wm.autoConnect("ESPGuzman");
 
   if(!response){
-    digitalWrite(ledVermelho, OUTPUT);
+    digitalWrite(ledVermelho, HIGH);
   }
   else{
-    digitalWrite(ledVerde, OUTPUT);
+    digitalWrite(ledVerde, HIGH);
+    delay(3000);
+    digitalWrite(ledVerde, LOW);
   }
 
   return response;
