@@ -31,6 +31,7 @@ Adafruit_ADS1115 ads;
 //funções auxiliares
 
 bool conectarWifi();
+void verificarConexao();
 bool enviarDados();
 float calcularCorrente();
 float calcularTensao();
@@ -39,8 +40,10 @@ float calcularUV();
 
 void setup() {
   Serial.begin(115200);
- 
-  conectarWifi();
+
+  //conectarWifi();
+
+  verificarConexao();
  
   Firebase.begin(FIREBASE_HOST, FIREBASE_AUTH);
 
@@ -53,8 +56,7 @@ void setup() {
   ads.setGain(GAIN_TWOTHIRDS); // melhor resolução possivel para ler o vout
 
   pinMode(ledAmarelo, OUTPUT);
-  pinMode(ledVerde, OUTPUT);
-  pinMode(ledVermelho, OUTPUT);
+  
 
 
 }
@@ -68,9 +70,6 @@ void loop() {
 
   delay(10000);
 
-  
-
-
   esp_deep_sleep_start();
 
 
@@ -82,15 +81,6 @@ bool conectarWifi(){
   bool response;
 
   response = wm.autoConnect("ESPGuzman");
-
-  if(!response){
-    digitalWrite(ledVermelho, HIGH);
-  }
-  else{
-    digitalWrite(ledVerde, HIGH);
-    delay(3000);
-    digitalWrite(ledVerde, LOW);
-  }
 
   return response;
 
@@ -135,3 +125,23 @@ float calcularCorrente(){
 
   return corrente;
 }
+
+void verificarConexao(){
+  pinMode(ledVerde, OUTPUT);
+  pinMode(ledVermelho, OUTPUT);
+
+  while(WiFi.status() != WL_CONNECTED)
+  {
+    digitalWrite(ledVermelho, HIGH);
+    conectarWifi();
+  }
+
+  if(WiFi.status() == WL_CONNECTED){
+    digitalWrite(ledVermelho,LOW);
+    digitalWrite(ledVerde, HIGH);
+    delay(2000);
+    digitalWrite(ledVerde, LOW);
+  }
+}
+
+
