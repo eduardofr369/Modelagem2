@@ -5,6 +5,7 @@
 #include <esp_sleep.h>
 #include <Adafruit_ADS1X15.h>
 #include <Wire.h>
+#include <Adafruit_INA3221.h>
 
 
 //Variaveis do Firebase
@@ -27,6 +28,9 @@ int long tempo_wakeup = 60; // em segundos
 // objeto ads
 Adafruit_ADS1115 ads;
 
+//objeto INA
+
+Adafruit_INA3221 ina3221;
 
 //funções auxiliares
 
@@ -41,19 +45,23 @@ float calcularUV();
 void setup() {
   Serial.begin(115200);
 
-  //conectarWifi();
-
-  verificarConexao();
+  verificarConexao(); // o código nao executa até essa função ser executada.
  
   Firebase.begin(FIREBASE_HOST, FIREBASE_AUTH);
 
+  Wire.begin();
+
   ads.begin();
 
-  Wire.begin();
- 
-  esp_sleep_enable_timer_wakeup(tempo_wakeup * 1000000);
+  ina3221.begin(0x40, &Wire);
+
+  ina3221.setAveragingMode(INA3221_AVG_16_SAMPLES); // quantidade de amostras 
+
+  ina3221.setShuntResistance(1, 0.1); // valor de resistencia do shunt para o canal 2 
 
   ads.setGain(GAIN_TWOTHIRDS); // melhor resolução possivel para ler o vout
+
+  esp_sleep_enable_timer_wakeup(tempo_wakeup * 1000000);
 
   pinMode(ledAmarelo, OUTPUT);
   
@@ -89,7 +97,7 @@ bool conectarWifi(){
 bool enviarDados(){
 
   float dadosTensao = 1;
-  float dadosCorrente = 2;
+  float dadosCorrente = calcularCorrente();
   float dadosUV = 3;
   bool verificar;
 
@@ -104,26 +112,14 @@ bool enviarDados(){
 }
 
 float calcularCorrente(){
-  const float sensibilidade = 0.185;
-  float correnteAcumulada = 0;
-  int16_t adc0;
-  float out;
 
-  const int amostras = 10;
+  float corrente;
 
-  for (int i = 0; i < amostras; i++) {
-    adc0 = ads.readADC_SingleEnded(0);
-
-    out = ads.computeVolts(adc0);
-
-    correnteAcumulada += (out - 2.5) / sensibilidade;
-
-    delay(1);
-  }
-
-  float corrente = correnteAcumulada / amostras;
+  corrente = ina3221.getCurrentAmps(1) * 1000; // conversão para mA
 
   return corrente;
+
+
 }
 
 void verificarConexao(){
@@ -143,5 +139,4 @@ void verificarConexao(){
     digitalWrite(ledVerde, LOW);
   }
 }
-
 
