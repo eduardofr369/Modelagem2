@@ -96,12 +96,12 @@ bool conectarWifi(){
 
 bool enviarDados(){
 
-  float dadosTensao = 1;
+  float dadosTensao = calcularTensao();
   float dadosCorrente = calcularCorrente();
   float dadosUV = 3;
   bool verificar;
 
-  Firebase.setInt("Dados/Tensao", dadosTensao);
+  Firebase.setFloat("Dados/Tensao", dadosTensao);
   Firebase.setFloat("Dados/Corrente", dadosCorrente);
   Firebase.setInt("Dados/UV", dadosUV);
 
@@ -140,3 +140,11 @@ void verificarConexao(){
   }
 }
 
+
+float calcularTensao(){
+   float voltage = ina3221.getBusVoltage(1);
+
+
+   return voltage;
+
+}
