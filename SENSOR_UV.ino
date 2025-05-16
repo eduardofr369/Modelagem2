@@ -1,0 +1,31 @@
+#include <Adafruit_ADS1X15.h>
+#include <Wire.h>
+
+Adafruit_ADS1115 ads; 
+
+void setup() {
+  Wire.begin();
+  Serial.begin(115200);
+   if (!ads.begin()) {
+    Serial.println("Falha ao inicializar o ADS1115!");
+    while (1); // Fica preso aqui se falhar
+  }
+  ads.setGain(GAIN_TWOTHIRDS);
+  
+  Serial.println("ADS1015 inicializado com sucesso!");
+}
+
+void loop() {
+  int16_t adcValue = ads.readADC_SingleEnded(0);
+  float tensao_uv = ads.computeVolts(adcValue);
+  float indiceUV = tensao_uv / 0.106;  // 0.106 V ≈ 1 UV    
+
+  Serial.printf("Tensão: %.2f V  |  Índice UV: %.2f\n", tensao_uv, indiceUV);
+  delay(1000);
+
+}
+
+
+  
+  
+
