@@ -18,9 +18,14 @@ void setup() {
 void loop() {
   int16_t adcValue = ads.readADC_SingleEnded(0);
   float tensao_uv = ads.computeVolts(adcValue);
-  float indiceUV = tensao_uv/5;    //índice uv é a tensão do pino do ads pela alimentação do módulo (5v ou 3.3v)
+  float indiceUV = tensao_uv / 0.106;  // 0.106 V ≈ 1 UV    
 
   Serial.printf("Tensão: %.2f V  |  Índice UV: %.2f\n", tensao_uv, indiceUV);
   delay(1000);
 
 }
+
+
+  
+  
+
