@@ -40,6 +40,7 @@ bool enviarDados();
 float calcularCorrente();
 float calcularTensao();
 float calcularUV();
+float calcularPotencia();
 
 
 void setup() {
@@ -99,11 +100,13 @@ bool enviarDados(){
   float dadosTensao = calcularTensao();
   float dadosCorrente = calcularCorrente();
   float dadosUV = 3;
+  float potencia = calcularPotencia();
   bool verificar;
 
   Firebase.setFloat("Dados/Tensao", dadosTensao);
   Firebase.setFloat("Dados/Corrente", dadosCorrente);
   Firebase.setInt("Dados/UV", dadosUV);
+  Firebase.setFloat("Dados/potencia", potencia);
 
   verificar = 1;
 
@@ -147,4 +150,17 @@ float calcularTensao(){
 
    return voltage;
 
+}
+
+float calcularPotencia(){
+  float tensao;
+  float corrente;
+  float potencia;
+
+  tensao = calcularTensao();
+  corrente = calcularCorrente();
+
+  potencia =  tensao * corrente;
+
+  return potencia;
 }
