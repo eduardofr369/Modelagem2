@@ -211,7 +211,11 @@ float calcularPotencia(){
   tensao = calcularTensao();
   corrente = calcularCorrente();
 
-  potencia =  tensao * corrente;
+  potencia =  tensao * corrente; // mW
+
+  if(potencia < 35){
+    potencia = 0;
+  }
 
   return potencia;
 }
