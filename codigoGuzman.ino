@@ -36,12 +36,11 @@ Adafruit_INA3221 ina3221;
 
 bool conectarWifi();
 void verificarConexao();
-bool enviarDados();
+void enviarDados();
 float calcularCorrente();
 float calcularTensao();
-float calcularUV();
+int calcularUV();
 float calcularPotencia();
-
 
 void setup() {
   Serial.begin(115200);
@@ -73,10 +72,6 @@ void setup() {
 void loop() {
   enviarDados();
 
-  if(enviarDados() == 1){
-    digitalWrite(ledAmarelo, HIGH);
-  }
-
   delay(10000);
 
   esp_deep_sleep_start();
@@ -95,22 +90,25 @@ bool conectarWifi(){
 
 }
 
-bool enviarDados(){
+void enviarDados(){
 
   float dadosTensao = calcularTensao();
   float dadosCorrente = calcularCorrente();
-  float dadosUV = 3;
+  int dadosUV = calcularUV();
   float potencia = calcularPotencia();
-  bool verificar;
+  bool verificar = 1;
 
-  Firebase.setFloat("Dados/Tensao", dadosTensao);
   Firebase.setFloat("Dados/Corrente", dadosCorrente);
+  Firebase.setFloat("Dados/Tensao", dadosTensao);
   Firebase.setInt("Dados/UV", dadosUV);
   Firebase.setFloat("Dados/potencia", potencia);
 
-  verificar = 1;
-
-  return verificar;
+  if(verificar == 1){
+    digitalWrite(ledAmarelo, HIGH);
+    delay(1000);
+    digitalWrite(ledAmarelo, LOW);
+    delay(1000);
+  }
 
 }
 
@@ -145,10 +143,63 @@ void verificarConexao(){
 
 
 float calcularTensao(){
+
    float voltage = ina3221.getBusVoltage(1);
 
 
    return voltage;
+
+}
+
+int calcularUV(){
+  int16_t adc0; // porta A0 do ads1115
+  float volts0; // variavel que irá guardar a leitura de tensão do sensor UV
+  int sensorIndice; // variavel para armazenar o indice UV
+
+
+  adc0 = ads.readADC_SingleEnded(0); 
+  volts0 = ads.computeVolts(adc0);  
+
+  if(volts0 < 0.05){
+    sensorIndice = 0;
+  }
+  else if(volts0 < 0.227){
+    sensorIndice = 1;
+  }
+  else if(volts0 < 0.318){
+    sensorIndice = 2;
+  }
+  else if(volts0 < 0.408){
+    sensorIndice = 3;
+  }
+  else if(volts0 < 0.503){
+    sensorIndice = 4;
+  }
+  else if(volts0 < 0.606){
+    sensorIndice = 5;
+  }
+  else if(volts0 < 0.696){
+    sensorIndice = 6;
+  }
+  else if(volts0 < 0.795){
+    sensorIndice = 7;
+  }
+  else if(volts0 < 0.881){
+    sensorIndice = 8;
+  }
+  else if(volts0 < 0.976){
+    sensorIndice = 9;
+  }
+  else if(volts0 < 1.079){
+    sensorIndice = 10;
+  }
+  else if(volts0 > 1.079){
+    sensorIndice = 11;
+  }
+
+  return sensorIndice;
+
+
 
 }
 
