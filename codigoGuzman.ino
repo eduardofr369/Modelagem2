@@ -57,7 +57,7 @@ void setup() {
 
   ina3221.setAveragingMode(INA3221_AVG_16_SAMPLES); // quantidade de amostras 
 
-  ina3221.setShuntResistance(1, 0.1); // valor de resistencia do shunt para o canal 2 
+  ina3221.setShuntResistance(1, 0.7); // valor de resistencia do shunt para o canal 2 
 
   ads.setGain(GAIN_TWOTHIRDS); // melhor resolução possivel para ler o vout
 
@@ -91,6 +91,7 @@ bool conectarWifi(){
 }
 
 void enviarDados(){
+  delay(1000);
 
   float dadosTensao = calcularTensao();
   float dadosCorrente = calcularCorrente();
@@ -141,11 +142,9 @@ void verificarConexao(){
   }
 }
 
-
 float calcularTensao(){
 
    float voltage = ina3221.getBusVoltage(1);
-
 
    return voltage;
 
@@ -208,14 +207,10 @@ float calcularPotencia(){
   float corrente;
   float potencia;
 
-  tensao = calcularTensao();
-  corrente = calcularCorrente();
+  tensao = ina3221.getBusVoltage(1);
+  corrente = corrente = ina3221.getCurrentAmps(1) * 1000;
 
   potencia =  tensao * corrente; // mW
-
-  if(potencia < 35){
-    potencia = 0;
-  }
 
   return potencia;
 }
