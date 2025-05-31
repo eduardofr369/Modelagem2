@@ -150,53 +150,29 @@ float calcularTensao(){
 
 }
 
-int calcularUV(){
-  int16_t adc0; // porta A0 do ads1115
-  float volts0; // variavel que irá guardar a leitura de tensão do sensor UV
-  int sensorIndice; // variavel para armazenar o indice UV
+int calcularUV() {
+  int16_t adcValue;        // Valor lido do ADS1115 na porta A0
+  float uvVoltage;         // Tensão convertida do valor ADC
+  int uvIndex = -1;        // Índice UV (valor padrão inválido)
 
+  adcValue = ads.readADC_SingleEnded(0);
+  uvVoltage = ads.computeVolts(adcValue);
 
-  adc0 = ads.readADC_SingleEnded(0); 
-  volts0 = ads.computeVolts(adc0);  
+  if(uvVoltage < 0.05)        uvIndex = 0;
+  else if(uvVoltage < 0.227)  uvIndex = 1;
+  else if(uvVoltage < 0.318)  uvIndex = 2;
+  else if(uvVoltage < 0.408)  uvIndex = 3;
+  else if(uvVoltage < 0.503)  uvIndex = 4;
+  else if(uvVoltage < 0.606)  uvIndex = 5;
+  else if(uvVoltage < 0.696)  uvIndex = 6;
+  else if(uvVoltage < 0.795)  uvIndex = 7;
+  else if(uvVoltage < 0.881)  uvIndex = 8;
+  else if(uvVoltage < 0.976)  uvIndex = 9;
+  else if(uvVoltage < 1.079)  uvIndex = 10;
+  else                        uvIndex = 11;
 
-  if(volts0 < 0.05){
-    sensorIndice = 0;
-  }
-  else if(volts0 < 0.227){
-    sensorIndice = 1;
-  }
-  else if(volts0 < 0.318){
-    sensorIndice = 2;
-  }
-  else if(volts0 < 0.408){
-    sensorIndice = 3;
-  }
-  else if(volts0 < 0.503){
-    sensorIndice = 4;
-  }
-  else if(volts0 < 0.606){
-    sensorIndice = 5;
-  }
-  else if(volts0 < 0.696){
-    sensorIndice = 6;
-  }
-  else if(volts0 < 0.795){
-    sensorIndice = 7;
-  }
-  else if(volts0 < 0.881){
-    sensorIndice = 8;
-  }
-  else if(volts0 < 0.976){
-    sensorIndice = 9;
-  }
-  else if(volts0 < 1.079){
-    sensorIndice = 10;
-  }
-  else if(volts0 > 1.079){
-    sensorIndice = 11;
-  }
-
-  return sensorIndice;
+  return uvIndex;
+}
 
 
 
